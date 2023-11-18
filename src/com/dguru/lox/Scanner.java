@@ -86,11 +86,17 @@ public class Scanner {
             case '+':
                 addToken(PLUS);
                 break;
+            case ':':
+                addToken(COLON);
+                break;
             case ';':
                 addToken(SEMICOLON);
                 break;
             case '*':
                 addToken(STAR);
+                break;
+            case '?':
+                addToken(QUESTION_MARK);
                 break;
 
             case '!':
@@ -138,7 +144,7 @@ public class Scanner {
                 } else if (isAlpha(c)) {
                     identifier();
                 } else {
-                    Lox.error(line, "Unexpected character: " + c);
+                    Lox.error(line, this.lineCharIndex, "Scanner error: Unexpected character: " + c);
                 }
 
                 break;

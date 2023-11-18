@@ -63,6 +63,9 @@ public class Lox {
     static void error(int line, String message) {
         report(line, "", message);
     }
+    static void error(int line, int charIndex, String message) {
+        report(line, "index " + charIndex, message);
+    }
 
     static void error(Token token, String message) {
         if (token.type == TokenType.EOF) {

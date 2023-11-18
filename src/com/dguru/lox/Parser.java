@@ -29,14 +29,30 @@ class Parser {
     }
 
     private Expr comma() {
-        var expr = equality();
+        var expr = ternary();
 
         while (match(COMMA)) {
-            Expr right = equality();
+            Expr right = ternary();
             expr = new Expr.Comma(expr, right);
         }
 
         return expr;
+    }
+
+    private Expr ternary() {
+        var expr1 = equality();
+
+        if (match(QUESTION_MARK)) {
+            var expr2 = ternary();
+            if (match(COLON)) {
+                var expr3 = ternary();
+                expr1 = new Expr.Ternary(expr1, expr2, expr3);
+            } else {
+                throw error(peek(), "Unexpected ending of ternary operator");
+            }
+        }
+
+        return expr1;
     }
 
     private Expr equality() {
