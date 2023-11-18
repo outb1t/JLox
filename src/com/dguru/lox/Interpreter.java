@@ -56,9 +56,14 @@ public class Interpreter implements Expr.Visitor<Object> {
                 if (left instanceof Double && right instanceof Double) {
                     return (double) left + (double) right;
                 }
-                if (left instanceof String && right instanceof String) {
+
+                if (left instanceof String) {
+                    if(right instanceof Double) {
+                        right = doubleToString(right);
+                    }
                     return (String) left + (String) right;
                 }
+
                 throw new RuntimeError(expr.operator, "Operands must be two numbers or two strings.");
             case STAR:
                 checkNumberOperands(expr.operator, left, right);
@@ -69,6 +74,13 @@ public class Interpreter implements Expr.Visitor<Object> {
         }
 
         return null;
+    }
+
+    private static Object doubleToString(Object number) {
+        if((double) number % 1 == 0) {
+            number = ((Double) number).intValue();
+        }
+        return String.valueOf(number);
     }
 
     @Override
