@@ -1,7 +1,5 @@
 package com.dguru.lox;
 
-import java.util.List;
-
 abstract class Expr {
     interface Visitor<R> {
         R visitBinaryExpr(Binary expr);
@@ -11,6 +9,8 @@ abstract class Expr {
         R visitLiteralExpr(Literal expr);
 
         R visitUnaryExpr(Unary expr);
+
+        R visitCommaExpr(Comma expr);
     }
 
     static class Binary extends Expr {
@@ -69,6 +69,22 @@ abstract class Expr {
 
         final Token operator;
         final Expr right;
+    }
+
+    static class Comma extends Expr {
+        Comma(Expr left, Expr right) {
+            this.left = left;
+            this.right = right;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitCommaExpr(this);
+        }
+
+        final Expr left;
+        final Expr right;
+
     }
 
     abstract <R> R accept(Visitor<R> visitor);

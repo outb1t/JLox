@@ -25,7 +25,18 @@ class Parser {
     }
 
     private Expr expression() {
-        return equality();
+        return comma();
+    }
+
+    private Expr comma() {
+        var expr = equality();
+
+        while (match(COMMA)) {
+            Expr right = equality();
+            expr = new Expr.Comma(expr, right);
+        }
+
+        return expr;
     }
 
     private Expr equality() {
@@ -44,8 +55,8 @@ class Parser {
         var expr = term();
 
         while (match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
-            var right = term();
             var operator = previous();
+            var right = term();
             expr = new Expr.Binary(expr, operator, right);
         }
 
