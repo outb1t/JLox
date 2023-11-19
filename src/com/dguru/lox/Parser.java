@@ -27,7 +27,7 @@ class Parser {
 
     private Stmt declaration() {
         try {
-            if(match(VAR)) return varDeclaration();
+            if (match(VAR)) return varDeclaration();
 
             return statement();
         } catch (ParseError error) {
@@ -40,7 +40,7 @@ class Parser {
         var name = consume(IDENTIFIER, "Expect variable name.");
 
         Expr initializer = null;
-        if(match(EQUAL)) {
+        if (match(EQUAL)) {
             initializer = expression();
         }
 
@@ -67,7 +67,25 @@ class Parser {
     }
 
     private Expr expression() {
-        return comma();
+        return assignment();
+    }
+
+    private Expr assignment() {
+        Expr expr = comma();
+
+        if (match(EQUAL)) {
+            var equals = previous();
+            var value = assignment();
+
+            if (expr instanceof Expr.Variable) {
+                var name = ((Expr.Variable) expr).name;
+                return new Expr.Assign(name, value);
+            }
+
+            error(equals, "Invalid assignment target.");
+        }
+
+        return expr;
     }
 
     private Expr comma() {
@@ -164,7 +182,7 @@ class Parser {
             return new Expr.Literal(previous().literal);
         }
 
-        if(match(IDENTIFIER)) {
+        if (match(IDENTIFIER)) {
             return new Expr.Variable(previous());
         }
 
