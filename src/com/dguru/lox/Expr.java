@@ -1,5 +1,7 @@
 package com.dguru.lox;
 
+import java.util.List;
+
 abstract class Expr {
     interface Visitor<R> {
         R visitBinaryExpr(Binary expr);
@@ -9,6 +11,8 @@ abstract class Expr {
         R visitLiteralExpr(Literal expr);
 
         R visitUnaryExpr(Unary expr);
+
+        R visitVariableExpr(Variable expr);
 
         R visitCommaExpr(Comma expr);
 
@@ -73,6 +77,19 @@ abstract class Expr {
         final Expr right;
     }
 
+    static class Variable extends Expr {
+        Variable(Token name) {
+            this.name = name;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitVariableExpr(this);
+        }
+
+        final Token name;
+    }
+
     static class Comma extends Expr {
         Comma(Expr left, Expr right) {
             this.left = left;
@@ -86,7 +103,6 @@ abstract class Expr {
 
         final Expr left;
         final Expr right;
-
     }
 
     static class Ternary extends Expr {
