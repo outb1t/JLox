@@ -1,30 +1,31 @@
 package com.dguru.lox;
 
+import java.util.List;
 import java.util.Objects;
 
-public class Interpreter implements Expr.Visitor<Object> {
+public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
-    public void interpret(Expr expression) {
+    public void interpret(List<Stmt> stmts) {
         try {
-            Object value = evaluate(expression);
-            System.out.println(stringify(value));
+            for(Stmt stmt: stmts) {
+                execute(stmt);
+            }
         } catch (RuntimeError error) {
             Lox.runtimeError(error);
         }
     }
 
-    private String stringify(Object object) {
-        if (object == null) return "nil";
+    @Override
+    public Void visitExpressionStmt(Stmt.Expression stmt) {
+        evaluate(stmt.expression);
+        return null;
+    }
 
-        if (object instanceof Double) {
-            String text = object.toString();
-            if (text.endsWith(".0")) {
-                text = text.substring(0, text.length() - 2);
-            }
-            return text;
-        }
-
-        return object.toString();
+    @Override
+    public Void visitPrintStmt(Stmt.Print stmt) {
+        var value = evaluate(stmt.expression);
+        System.out.println(stringify(value));
+        return null;
     }
 
     @Override
@@ -79,13 +80,6 @@ public class Interpreter implements Expr.Visitor<Object> {
         return null;
     }
 
-    private static Object doubleToString(Object number) {
-        if((double) number % 1 == 0) {
-            number = ((Double) number).intValue();
-        }
-        return String.valueOf(number);
-    }
-
     @Override
     public Object visitGroupingExpr(Expr.Grouping expr) {
         return evaluate(expr.expression);
@@ -128,10 +122,28 @@ public class Interpreter implements Expr.Visitor<Object> {
         return evaluate(expr.expr3);
     }
 
+    private String stringify(Object object) {
+        if (object == null) return "nil";
+
+        if (object instanceof Double) {
+            String text = object.toString();
+            if (text.endsWith(".0")) { // TODO: refactor doubleToString
+                text = text.substring(0, text.length() - 2);
+            }
+            return text;
+        }
+
+        return object.toString();
+    }
+
     private boolean isTruthy(Object object) {
         if (object == null) return false;
         if (object instanceof Boolean) return (boolean) object;
         return true;
+    }
+
+    private void execute(Stmt stmt) {
+        stmt.accept(this);
     }
 
     private Object evaluate(Expr expr) {
@@ -151,6 +163,13 @@ public class Interpreter implements Expr.Visitor<Object> {
         if (left instanceof Double && right instanceof Double) return;
 
         throw new RuntimeError(operator, "Operands must be numbers.");
+    }
+
+    private static Object doubleToString(Object number) {
+        if((double) number % 1 == 0) {
+            number = ((Double) number).intValue();
+        }
+        return String.valueOf(number);
     }
 
 }
