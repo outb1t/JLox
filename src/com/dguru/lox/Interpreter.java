@@ -5,9 +5,11 @@ import java.util.Objects;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
+    private final Environment environment = new Environment();
+
     public void interpret(List<Stmt> stmts) {
         try {
-            for(Stmt stmt: stmts) {
+            for (Stmt stmt : stmts) {
                 execute(stmt);
             }
         } catch (RuntimeError error) {
@@ -25,6 +27,17 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Void visitPrintStmt(Stmt.Print stmt) {
         var value = evaluate(stmt.expression);
         System.out.println(stringify(value));
+        return null;
+    }
+
+    @Override
+    public Void visitVarStmt(Stmt.Var stmt) {
+        Object value = null;
+        if (stmt.initializer != null) {
+            value = evaluate(stmt.initializer);
+        }
+
+        environment.define(stmt.name.lexeme, value);
         return null;
     }
 
@@ -59,7 +72,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 }
 
                 if (left instanceof String) {
-                    if(right instanceof Double) {
+                    if (right instanceof Double) {
                         right = doubleToString(right);
                     }
                     return (String) left + (String) right;
@@ -71,7 +84,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 return (double) left * (double) right;
             case SLASH:
                 checkNumberOperands(expr.operator, left, right);
-                if((double) right == 0.0) {
+                if ((double) right == 0.0) {
                     throw new RuntimeError(expr.operator, "Division by zero");
                 }
                 return (double) left / (double) right;
@@ -105,6 +118,10 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return null;
     }
 
+    @Override
+    public Object visitVariableExpr(Expr.Variable expr) {
+        return environment.get(expr.name);
+    }
 
     @Override
     public Object visitCommaExpr(Expr.Comma expr) {
@@ -166,7 +183,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     private static Object doubleToString(Object number) {
-        if((double) number % 1 == 0) {
+        if ((double) number % 1 == 0) {
             number = ((Double) number).intValue();
         }
         return String.valueOf(number);

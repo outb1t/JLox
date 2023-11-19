@@ -54,9 +54,6 @@ public class Lox {
 
         if (hadError) return;
 
-//        AstPrinter printer = new AstPrinter();
-//        System.out.println(printer.print(expression));
-
         interpreter.interpret(stmts);
     }
 
