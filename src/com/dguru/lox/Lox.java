@@ -54,6 +54,14 @@ public class Lox {
 
         if (hadError) return;
 
+        if (!stmts.isEmpty()) {
+            var lastStmt = stmts.get(stmts.size() - 1);
+            if (lastStmt instanceof Stmt.Expression) {
+                System.out.println(interpreter.evaluate(((Stmt.Expression) lastStmt).expression));
+                return;
+            }
+        }
+
         interpreter.interpret(stmts);
     }
 
