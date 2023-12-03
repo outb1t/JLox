@@ -172,6 +172,15 @@ class Parser {
         return expr;
     }
 
+    /**
+     * TODO:
+     * fix precedence of ternary and comma
+     * this expression doesn't work correctly without assignment:
+     * a == 1 ? "one" : a == 2 ? "two" : "many";
+     * this works:
+     * var b = a == 1 ? "one" : a == 2 ? "two" : "many";
+     * @link <a href="https://en.cppreference.com/w/c/language/operator_precedence">...</a>
+     */
     private Expr comma() {
         var expr = ternary();
 
