@@ -95,6 +95,9 @@ public class Scanner {
             case '*':
                 addToken(STAR);
                 break;
+            case '%':
+                addToken(REMAINDER);
+                break;
             case '?':
                 addToken(QUESTION_MARK);
                 break;

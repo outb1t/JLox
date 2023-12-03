@@ -107,6 +107,12 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             case STAR:
                 checkNumberOperands(expr.operator, left, right);
                 return (double) left * (double) right;
+            case REMAINDER:
+                checkNumberOperands(expr.operator, left, right);
+                if ((double) right == 0.0) {
+                    throw new RuntimeError(expr.operator, "Division by zero");
+                }
+                return (double) left % (double) right;
             case SLASH:
                 checkNumberOperands(expr.operator, left, right);
                 if ((double) right == 0.0) {
