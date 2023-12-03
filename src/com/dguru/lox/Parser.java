@@ -55,6 +55,7 @@ class Parser {
 
         return expressionStatement();
     }
+
     private Stmt ifStatement() {
         consume(LEFT_PAREN, "Expect '(' after 'if'.");
         Expr condition = expression();
@@ -62,7 +63,7 @@ class Parser {
 
         Stmt thenBranch = statement();
         Stmt elseBranch = null;
-        if(match(ELSE)) {
+        if (match(ELSE)) {
             elseBranch = statement();
         }
 
@@ -126,7 +127,7 @@ class Parser {
     }
 
     private Expr ternary() {
-        var expr1 = equality();
+        var expr1 = or();
 
         if (match(QUESTION_MARK)) {
             var expr2 = ternary();
@@ -139,6 +140,30 @@ class Parser {
         }
 
         return expr1;
+    }
+
+    private Expr or() {
+        Expr expr = and();
+
+        while (match(OR)) {
+            Token operator = previous();
+            Expr right = and();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    private Expr and() {
+        Expr expr = equality();
+
+        while (match(AND)) {
+            Token operator = previous();
+            Expr right = equality();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+
+        return expr;
     }
 
     private Expr equality() {
